@@ -1,0 +1,319 @@
+-- [W2] +1 MOG EVOLUTION HUB (standalone v1.1) — key = "1"
+local HENV = (getgenv and getgenv()) or _G
+HENV.__HUB_SESSION = (HENV.__HUB_SESSION or 0) + 1
+local MY_SESSION = HENV.__HUB_SESSION
+local function alive() return HENV.__HUB_SESSION == MY_SESSION end
+local function notify(t, m, d)
+    pcall(function() game:GetService("StarterGui"):SetCore("SendNotification", {Title = t, Text = m, Duration = d or 3}) end)
+end
+
+local function openHub()
+    local s, e = pcall(function()
+        local Players = game:GetService("Players")
+        local UIS = game:GetService("UserInputService")
+        local CG = game:GetService("CoreGui")
+        local TW = game:GetService("TweenService")
+        local RS = game:GetService("RunService")
+        local LP = Players.LocalPlayer
+        local PG = LP:FindFirstChild("PlayerGui") or LP:WaitForChild("PlayerGui")
+        local CFGNAME = "HubCfg_Mog.json"
+        local cfg = {}
+        pcall(function()
+            if readfile and isfile and isfile(CFGNAME) then
+                local d = game:GetService("HttpService"):JSONDecode(readfile(CFGNAME))
+                if type(d) == "table" then cfg = d end
+            end
+        end)
+        local cfgReg = {}
+        local function loadCfgNow()
+            pcall(function()
+                if readfile and isfile and isfile(CFGNAME) then
+                    local d = game:GetService("HttpService"):JSONDecode(readfile(CFGNAME))
+                    if type(d) == "table" then cfg = d end
+                end
+            end)
+            for _, r in ipairs(cfgReg) do
+                local v = cfg[r.key]
+                if v == nil then v = r.defTrue end
+                if v ~= r.cur then r.cur = v; pcall(r.fire, v) end
+            end
+            notify("Mog", "Config loaded!", 2)
+        end
+        local function saveCfg()
+            pcall(function()
+                if writefile then writefile(CFGNAME, game:GetService("HttpService"):JSONEncode(cfg)) end
+            end)
+        end
+        for _, n in ipairs({"MogHub_GUI","EgitimHub_GUI","MuscleHub_GUI","EgitimLoader_GUI"}) do
+            if CG:FindFirstChild(n) then CG:FindFirstChild(n):Destroy() end
+            if PG:FindFirstChild(n) then PG:FindFirstChild(n):Destroy() end
+            pcall(function() if gethui then local h=gethui(); if h:FindFirstChild(n) then h:FindFirstChild(n):Destroy() end end end)
+        end
+        local autoTrain = false
+        local afkC = nil
+        local SG = Instance.new("ScreenGui"); SG.Name = "MogHub_GUI"; SG.ResetOnSpawn = false; SG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; SG.IgnoreGuiInset = true
+        local gp = nil
+        pcall(function() if gethui then gp = gethui() elseif syn and syn.protect_gui then syn.protect_gui(SG); gp = CG end end)
+        if not gp then gp = PG; if not pcall(function() SG.Parent = PG end) then gp = CG end end
+        SG.Parent = gp
+        local Main = Instance.new("Frame"); Main.Size = UDim2.new(0,550,0,380); Main.Position = UDim2.new(0.5,-275,0.5,-190); Main.BackgroundColor3 = Color3.fromRGB(24,18,32); Main.BorderSizePixel = 0; Main.Parent = SG
+        local MC = Instance.new("UICorner"); MC.CornerRadius = UDim.new(0,12); MC.Parent = Main
+        local MS = Instance.new("UIStroke"); MS.Color = Color3.fromRGB(190,120,255); MS.Thickness = 1.5; MS.Parent = Main
+        local _grad = Instance.new("UIGradient"); _grad.Rotation = 90; _grad.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(32,24,50)), ColorSequenceKeypoint.new(1, Color3.fromRGB(18,12,28))}; _grad.Parent = Main
+        local TB = Instance.new("Frame"); TB.Size = UDim2.new(1,0,0,45); TB.BackgroundColor3 = Color3.fromRGB(46,32,64); TB.BorderSizePixel = 0; TB.Parent = Main
+        local TC = Instance.new("UICorner"); TC.CornerRadius = UDim.new(0,12); TC.Parent = TB
+        local TF = Instance.new("Frame"); TF.Size = UDim2.new(1,0,0,12); TF.Position = UDim2.new(0,0,1,-12); TF.BackgroundColor3 = Color3.fromRGB(46,32,64); TF.BorderSizePixel = 0; TF.Parent = TB
+        local _acc = Instance.new("Frame"); _acc.Size = UDim2.new(1,0,0,2); _acc.Position = UDim2.new(0,0,0,45); _acc.BackgroundColor3 = Color3.fromRGB(190,120,255); _acc.BorderSizePixel = 0; _acc.Parent = Main
+        local _pop = Instance.new("UIScale"); _pop.Scale = 0.7; _pop.Parent = Main; TW:Create(_pop,TweenInfo.new(0.35,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=1}):Play()
+        local TL = Instance.new("TextLabel"); TL.Size = UDim2.new(1,-100,1,0); TL.Position = UDim2.new(0,15,0,0); TL.BackgroundTransparency = 1; TL.Text = "[W2] +1 Mog Evolution  |  v1.0"; TL.TextColor3 = Color3.fromRGB(225,205,255); TL.TextSize = 15; TL.Font = Enum.Font.GothamBold; TL.TextXAlignment = Enum.TextXAlignment.Left; TL.Parent = TB
+        local CX = Instance.new("TextButton"); CX.Size = UDim2.new(0,32,0,32); CX.Position = UDim2.new(1,-38,0,6); CX.BackgroundColor3 = Color3.fromRGB(220,60,60); CX.Text = "X"; CX.TextColor3 = Color3.fromRGB(255,255,255); CX.Font = Enum.Font.GothamBold; CX.TextSize = 13; CX.Parent = TB
+        local CXC = Instance.new("UICorner"); CXC.CornerRadius = UDim.new(0,8); CXC.Parent = CX
+        local MN = Instance.new("TextButton"); MN.Size = UDim2.new(0,32,0,32); MN.Position = UDim2.new(1,-74,0,6); MN.BackgroundColor3 = Color3.fromRGB(70,70,80); MN.Text = "-"; MN.TextColor3 = Color3.fromRGB(255,255,255); MN.Font = Enum.Font.GothamBold; MN.TextSize = 13; MN.Parent = TB
+        local MNC = Instance.new("UICorner"); MNC.CornerRadius = UDim.new(0,8); MNC.Parent = MN
+        local Cont = Instance.new("Frame"); Cont.Size = UDim2.new(1,-16,1,-55); Cont.Position = UDim2.new(0,8,0,50); Cont.BackgroundColor3 = Color3.fromRGB(28,22,40); Cont.BorderSizePixel = 0; Cont.Parent = Main
+        local CC = Instance.new("UICorner"); CC.CornerRadius = UDim.new(0,10); CC.Parent = Cont
+        local Scroll = Instance.new("ScrollingFrame"); Scroll.Size = UDim2.new(1,0,1,0); Scroll.BackgroundTransparency = 1; Scroll.BorderSizePixel = 0; Scroll.ScrollBarThickness = 4; Scroll.CanvasSize = UDim2.new(0,0,0,0); Scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y; Scroll.Parent = Cont
+        local Pad = Instance.new("UIPadding"); Pad.PaddingTop = UDim.new(0,10); Pad.PaddingBottom = UDim.new(0,10); Pad.PaddingLeft = UDim.new(0,10); Pad.PaddingRight = UDim.new(0,10); Pad.Parent = Scroll
+        local List = Instance.new("UIListLayout"); List.Padding = UDim.new(0,8); List.Parent = Scroll
+        local function mkToggle(title, desc, def, cb)
+            local F=Instance.new("Frame"); F.Size=UDim2.new(1,0,0,58); F.BackgroundColor3=Color3.fromRGB(42,42,50); F.Parent=Scroll; local C=Instance.new("UICorner"); C.CornerRadius=UDim.new(0,8); C.Parent=F; local ST=Instance.new("UIStroke"); ST.Color=Color3.fromRGB(60,60,72); ST.Thickness=1; ST.Parent=F; F.MouseEnter:Connect(function() TW:Create(F,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(50,50,60)}):Play() end); F.MouseLeave:Connect(function() TW:Create(F,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(42,42,50)}):Play() end)
+            local T=Instance.new("TextLabel"); T.Size=UDim2.new(1,-70,0,18); T.Position=UDim2.new(0,12,0,8); T.BackgroundTransparency=1; T.Text=title; T.TextColor3=Color3.fromRGB(255,255,255); T.TextSize=12; T.Font=Enum.Font.GothamBold; T.TextXAlignment=Enum.TextXAlignment.Left; T.Parent=F
+            local D=Instance.new("TextLabel"); D.Size=UDim2.new(1,-70,0,16); D.Position=UDim2.new(0,12,0,28); D.BackgroundTransparency=1; D.Text=desc; D.TextColor3=Color3.fromRGB(150,150,160); D.TextSize=10; D.Font=Enum.Font.Gotham; D.TextXAlignment=Enum.TextXAlignment.Left; D.Parent=F
+            local B=Instance.new("TextButton"); B.Size=UDim2.new(0,52,0,28); B.Position=UDim2.new(1,-62,0.5,-14); B.BackgroundColor3=def and Color3.fromRGB(0,200,100) or Color3.fromRGB(65,65,75); B.Text=""; B.AutoButtonColor=false; B.Parent=F; local BC=Instance.new("UICorner"); BC.CornerRadius=UDim.new(1,0); BC.Parent=B
+            local KNOB=Instance.new("Frame"); KNOB.Size=UDim2.new(0,22,0,22); KNOB.Position=def and UDim2.new(1,-25,0.5,-11) or UDim2.new(0,3,0.5,-11); KNOB.BackgroundColor3=Color3.fromRGB(255,255,255); KNOB.BorderSizePixel=0; KNOB.Parent=B; local KC=Instance.new("UICorner"); KC.CornerRadius=UDim.new(1,0); KC.Parent=KNOB
+            local on=false
+            local function renderSw()
+                TW:Create(B,TweenInfo.new(0.25,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{BackgroundColor3=on and Color3.fromRGB(0,200,100) or Color3.fromRGB(65,65,75)}):Play()
+                TW:Create(KNOB,TweenInfo.new(0.28,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Position=on and UDim2.new(1,-25,0.5,-11) or UDim2.new(0,3,0.5,-11)}):Play()
+            end
+            local myEntry = {key = title, defTrue = (def == true), cur = def, fire = function(v) on = v; renderSw(); pcall(cb, v) end}
+            table.insert(cfgReg, myEntry)
+            B.MouseButton1Click:Connect(function() on=not on; renderSw(); cfg[title]=on; saveCfg(); myEntry.cur = on; pcall(cb,on) end)
+            if def then on=true; renderSw(); task.spawn(function() task.wait(1); if on and alive() then pcall(cb,true) end end) end
+            return F
+        end
+        local function mkBtn(title, desc, txt, col, cb)
+            local F=Instance.new("Frame"); F.Size=UDim2.new(1,0,0,58); F.BackgroundColor3=Color3.fromRGB(42,42,50); F.Parent=Scroll; local C=Instance.new("UICorner"); C.CornerRadius=UDim.new(0,8); C.Parent=F; local ST=Instance.new("UIStroke"); ST.Color=Color3.fromRGB(60,60,72); ST.Thickness=1; ST.Parent=F; F.MouseEnter:Connect(function() TW:Create(F,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(50,50,60)}):Play() end); F.MouseLeave:Connect(function() TW:Create(F,TweenInfo.new(0.15),{BackgroundColor3=Color3.fromRGB(42,42,50)}):Play() end)
+            local T=Instance.new("TextLabel"); T.Size=UDim2.new(1,-90,0,18); T.Position=UDim2.new(0,12,0,8); T.BackgroundTransparency=1; T.Text=title; T.TextColor3=Color3.fromRGB(255,255,255); T.TextSize=12; T.Font=Enum.Font.GothamBold; T.TextXAlignment=Enum.TextXAlignment.Left; T.Parent=F
+            local D=Instance.new("TextLabel"); D.Size=UDim2.new(1,-90,0,16); D.Position=UDim2.new(0,12,0,28); D.BackgroundTransparency=1; D.Text=desc; D.TextColor3=Color3.fromRGB(150,150,160); D.TextSize=10; D.Font=Enum.Font.Gotham; D.TextXAlignment=Enum.TextXAlignment.Left; D.Parent=F
+            local B=Instance.new("TextButton"); B.Size=UDim2.new(0,70,0,28); B.Position=UDim2.new(1,-80,0.5,-14); B.BackgroundColor3=col; B.Text=txt; B.TextColor3=Color3.fromRGB(255,255,255); B.Font=Enum.Font.GothamBold; B.TextSize=11; B.Parent=F; local BC=Instance.new("UICorner"); BC.CornerRadius=UDim.new(0,8); BC.Parent=B
+            B.MouseButton1Click:Connect(function() pcall(cb) end)
+            return F
+        end
+        local noclipOn, noclipConn, speedOn, jumpOn, flyOn, flyConn, flyGyro, flyVel = false, nil, false, false, false, nil, nil, nil
+        local savedSpeed = 16
+        local flyKeys = {}
+        local function setNoclip(s)
+            noclipOn = s
+            if s then
+                noclipConn = RS.Stepped:Connect(function()
+                    if not (noclipOn and alive()) then return end
+                    pcall(function()
+                        local c = LP.Character
+                        if c then for _, v in ipairs(c:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
+                    end)
+                end)
+            else
+                if noclipConn then pcall(function() noclipConn:Disconnect() end); noclipConn = nil end
+            end
+        end
+        local function setSpeed(s)
+            if s then pcall(function() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid"); if h then savedSpeed = h.WalkSpeed end end) end
+            speedOn = s
+            if s then
+                task.spawn(function()
+                    while speedOn and alive() do
+                        pcall(function() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid"); if h and h.WalkSpeed ~= 60 then h.WalkSpeed = 60 end end)
+                        task.wait(0.5)
+                    end
+                end)
+            else
+                pcall(function() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid"); if h then h.WalkSpeed = savedSpeed end end)
+            end
+        end
+        local function setJump(s)
+            jumpOn = s
+            if s then
+                task.spawn(function()
+                    while jumpOn and alive() do
+                        pcall(function() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid"); if h then h.UseJumpPower = true; if h.JumpPower ~= 120 then h.JumpPower = 120 end end end)
+                        task.wait(0.5)
+                    end
+                end)
+            else
+                pcall(function() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid"); if h then h.JumpPower = 50 end end)
+            end
+        end
+        local function setFly(s)
+            flyOn = s
+            local char = LP.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            local hum = char and char:FindFirstChildOfClass("Humanoid")
+            if s then
+                if not (hrp and hum) then notify("Hub", "Character not found", 2); return end
+                hum.PlatformStand = true
+                flyGyro = Instance.new("BodyGyro"); flyGyro.P = 9000; flyGyro.MaxTorque = Vector3.new(9e9,9e9,9e9); flyGyro.CFrame = hrp.CFrame; flyGyro.Parent = hrp
+                flyVel = Instance.new("BodyVelocity"); flyVel.MaxForce = Vector3.new(9e9,9e9,9e9); flyVel.Velocity = Vector3.new(0,0,0); flyVel.Parent = hrp
+                flyConn = RS.RenderStepped:Connect(function()
+                    if not (flyOn and alive()) then return end
+                    pcall(function()
+                        local c2 = LP.Character
+                        local h2 = c2 and c2:FindFirstChild("HumanoidRootPart")
+                        local cam = workspace.CurrentCamera
+                        if not (h2 and cam and flyVel and flyGyro) then return end
+                        local cf = cam.CFrame
+                        local mv = Vector3.new(0,0,0)
+                        if flyKeys[Enum.KeyCode.W] then mv = mv + cf.LookVector end
+                        if flyKeys[Enum.KeyCode.S] then mv = mv - cf.LookVector end
+                        if flyKeys[Enum.KeyCode.A] then mv = mv - cf.RightVector end
+                        if flyKeys[Enum.KeyCode.D] then mv = mv + cf.RightVector end
+                        if flyKeys[Enum.KeyCode.E] or flyKeys[Enum.KeyCode.Space] then mv = mv + Vector3.new(0,1,0) end
+                        if flyKeys[Enum.KeyCode.Q] then mv = mv - Vector3.new(0,1,0) end
+                        if mv.Magnitude > 0.1 then mv = mv.Unit * 50 end
+                        flyVel.Velocity = mv
+                        flyGyro.CFrame = cf
+                    end)
+                end)
+            else
+                if flyConn then pcall(function() flyConn:Disconnect() end); flyConn = nil end
+                if flyGyro then pcall(function() flyGyro:Destroy() end); flyGyro = nil end
+                if flyVel then pcall(function() flyVel:Destroy() end); flyVel = nil end
+                pcall(function() local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid"); if h then h.PlatformStand = false end end)
+            end
+        end
+        local function head(txt, col)
+            local H = Instance.new("TextLabel"); H.Size = UDim2.new(1,0,0,22); H.BackgroundTransparency = 1; H.Text = txt; H.TextColor3 = Color3.fromRGB(225,205,255); H.TextSize = 12; H.Font = Enum.Font.GothamBold; H.Parent = Scroll
+            return H
+        end
+        local showOpenBtn = true
+        local hidden = false
+        local function shutdownAll()
+            autoTrain = false
+            if afkC then pcall(function() afkC:Disconnect() end); afkC = nil end
+            setNoclip(false); setSpeed(false); setJump(false); setFly(false)
+        end
+        local OpenBtn = Instance.new("TextButton"); OpenBtn.Size = UDim2.new(0,120,0,36); OpenBtn.Position = UDim2.new(0,20,0.5,-18); OpenBtn.BackgroundColor3 = Color3.fromRGB(190,120,255); OpenBtn.Text = "OPEN"; OpenBtn.TextColor3 = Color3.fromRGB(0,0,0); OpenBtn.Font = Enum.Font.GothamBold; OpenBtn.TextSize = 12; OpenBtn.Visible = false; OpenBtn.Parent = SG
+        local OpenC = Instance.new("UICorner"); OpenC.CornerRadius = UDim.new(0,8); OpenC.Parent = OpenBtn
+        local function showMenu()
+            hidden = false; SG.Enabled = true; Main.Visible = true; OpenBtn.Visible = false
+        end
+        local function hideMenu()
+            hidden = true; Main.Visible = false
+            if showOpenBtn then OpenBtn.Visible = true end
+            notify("Mog", "Menu hidden - RightShift to open", 2)
+        end
+        OpenBtn.MouseButton1Click:Connect(function() showMenu() end)
+        do
+            local odg, osp, ods = false, nil, nil
+            OpenBtn.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then odg = true; osp = i.Position; ods = OpenBtn.Position end end)
+            UIS.InputChanged:Connect(function(i) if odg and i.UserInputType == Enum.UserInputType.MouseMovement then local dd = i.Position - osp; pcall(function() OpenBtn.Position = UDim2.new(ods.X.Scale, ods.X.Offset + dd.X, ods.Y.Scale, ods.Y.Offset + dd.Y) end) end end)
+            UIS.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then odg = false end end)
+        end
+        head("-- MAIN --")
+        mkToggle("Auto Train", "20 times per second", cfg["Auto Train"]==true, function(s)
+            autoTrain = s
+            if s then
+                task.spawn(function()
+                    while autoTrain and alive() do
+                        pcall(function() game:GetService("ReplicatedStorage").PowerRemotes.ClickPower:FireServer() end)
+                        task.wait(0.05)
+                    end
+                end)
+            end
+        end)
+        head("-- MISC --")
+        mkToggle("Anti-AFK", "Prevents AFK kick", false, function(s)
+            if s then afkC = LP.Idled:Connect(function() if not alive() then pcall(function() afkC:Disconnect() end) return end; pcall(function() game:GetService("VirtualUser"):CaptureController(); game:GetService("VirtualUser"):ClickButton2(Vector2.new()) end) end)
+            else if afkC then afkC:Disconnect(); afkC = nil end end
+        end)
+        mkBtn("Rejoin", "Rejoin same server", "Rejoin", Color3.fromRGB(0,122,255), function()
+            pcall(function() game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, LP) end)
+        end)
+        head("-- PLAYER --")
+        mkToggle("Noclip", "Walk through walls", cfg["Noclip"]==true, setNoclip)
+        mkToggle("Speed", "Speed 60 (16 when off)", cfg["Speed"]==true, setSpeed)
+        mkToggle("Jump", "Jump 120 (50 when off)", cfg["Jump"]==true, setJump)
+        mkToggle("Fly", "WASD + E/Q to rise, speed 50", cfg["Fly"]==true, setFly)
+        UIS.InputBegan:Connect(function(i) if not alive() then return end; if i.UserInputType == Enum.UserInputType.Keyboard then flyKeys[i.KeyCode] = true end end)
+        UIS.InputEnded:Connect(function(i) if not alive() then return end; pcall(function() flyKeys[i.KeyCode] = nil end) end)
+        head("-- SETTINGS --")
+        mkToggle("Open Button", "Show open button when hidden", cfg["Open Button"]~=false, function(s) showOpenBtn = s; if not s then OpenBtn.Visible = false end end)
+        mkBtn("Hide Menu", "Hide menu (RightShift opens)", "HIDE", Color3.fromRGB(90,90,100), function() hideMenu() end)
+        mkBtn("Save Config", "", "SAVE", Color3.fromRGB(0,170,90), function() saveCfg(); notify("Mog", "Config saved!", 2) end)
+        mkBtn("Load Config", "", "LOAD", Color3.fromRGB(0,122,255), function() loadCfgNow() end)
+        mkBtn("Reset Config", "", "RESET", Color3.fromRGB(150,60,60), function() pcall(function() if delfile and isfile and isfile(CFGNAME) then delfile(CFGNAME) end end); notify("Mog", "Config reset! Applies on next load.", 3) end)
+        local min=false; local osz=Main.Size
+        MN.MouseButton1Click:Connect(function() min=not min; if min then TW:Create(Main,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=UDim2.new(0,550,0,48)}):Play(); MN.Text="+"; Cont.Visible=false else TW:Create(Main,TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=osz}):Play(); MN.Text="-"; task.wait(0.15); Cont.Visible=true end end)
+        local dg,ds,sp=false,nil,nil
+        TB.InputBegan:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=true; ds=i.Position; sp=Main.Position end end)
+        UIS.InputChanged:Connect(function(i) if dg and i.UserInputType==Enum.UserInputType.MouseMovement then local d=i.Position-ds; pcall(function() Main.Position=UDim2.new(sp.X.Scale,sp.X.Offset+d.X,sp.Y.Scale,sp.Y.Offset+d.Y) end) end end)
+        UIS.InputEnded:Connect(function(i) if i.UserInputType==Enum.UserInputType.MouseButton1 then dg=false end end)
+        CX.MouseButton1Click:Connect(function()
+            if SG:FindFirstChild("Confirm") then return end
+            local CF = Instance.new("Frame"); CF.Name = "Confirm"; CF.Size = UDim2.new(0,300,0,130); CF.Position = UDim2.new(0.5,-150,0.5,-65); CF.BackgroundColor3 = Color3.fromRGB(40,30,16); CF.BorderSizePixel = 0; CF.Parent = SG
+            local CFC = Instance.new("UICorner"); CFC.CornerRadius = UDim.new(0,10); CFC.Parent = CF
+            local CT = Instance.new("TextLabel"); CT.Size = UDim2.new(1,-20,0,50); CT.Position = UDim2.new(0,10,0,10); CT.BackgroundTransparency = 1; CT.Text = "Are you sure? Menu will close and everything stops."; CT.TextColor3 = Color3.fromRGB(255,255,255); CT.TextSize = 12; CT.Font = Enum.Font.GothamBold; CT.TextWrapped = true; CT.Parent = CF
+            local YES = Instance.new("TextButton"); YES.Size = UDim2.new(0,120,0,34); YES.Position = UDim2.new(0,20,1,-46); YES.BackgroundColor3 = Color3.fromRGB(200,50,50); YES.Text = "YES"; YES.TextColor3 = Color3.fromRGB(255,255,255); YES.Font = Enum.Font.GothamBold; YES.TextSize = 12; YES.Parent = CF
+            local NO = Instance.new("TextButton"); NO.Size = UDim2.new(0,120,0,34); NO.Position = UDim2.new(1,-140,1,-46); NO.BackgroundColor3 = Color3.fromRGB(70,70,80); NO.Text = "NO"; NO.TextColor3 = Color3.fromRGB(255,255,255); NO.Font = Enum.Font.GothamBold; NO.TextSize = 12; NO.Parent = CF
+            YES.MouseButton1Click:Connect(function() shutdownAll(); SG:Destroy() end)
+            NO.MouseButton1Click:Connect(function() CF:Destroy() end)
+        end)
+        UIS.InputBegan:Connect(function(i) if not alive() then return end; if i.KeyCode==Enum.KeyCode.RightShift then if hidden then showMenu() else SG.Enabled=not SG.Enabled end elseif i.KeyCode==Enum.KeyCode.Escape then shutdownAll(); SG:Destroy() end end)
+        notify("Strongman", "Loaded! RightShift to toggle", 3)
+    end)
+    if not s then warn("[Mog] Error: "..tostring(e)); notify("Error", tostring(e):sub(1,50), 4) end
+end
+
+local KEY_FILE = "LiftHub_Key.txt"
+local SAVED_KEY = nil
+pcall(function()
+    if isfile and isfile(KEY_FILE) then SAVED_KEY = readfile(KEY_FILE)
+    elseif readfile then SAVED_KEY = readfile(KEY_FILE) end
+end)
+
+-- ★ ключ = 1
+local function keyOK(k) return type(k) == "string" and k:gsub("%s+", "") == "1" end
+
+-- вебхук-логирование отключено
+local function logKey() end
+
+local function keyWindow()
+    local KG = Instance.new("ScreenGui"); KG.Name = "LiftHub_Key"; KG.ResetOnSpawn = false; KG.ZIndexBehavior = Enum.ZIndexBehavior.Sibling; KG.IgnoreGuiInset = true
+    local KCG = game:GetService("CoreGui")
+    local KLP = game:GetService("Players").LocalPlayer
+    local KPG = KLP:FindFirstChild("PlayerGui") or KLP:WaitForChild("PlayerGui")
+    local KUIS = game:GetService("UserInputService")
+    local KTW = game:GetService("TweenService")
+    local kp = nil
+    pcall(function() if gethui then kp = gethui() end end)
+    if not kp then kp = KPG end
+    KG.Parent = kp
+    local KF = Instance.new("Frame"); KF.Size = UDim2.new(0,360,0,252); KF.Position = UDim2.new(0.5,-180,0.5,-126); KF.BackgroundColor3 = Color3.fromRGB(20,20,26); KF.BorderSizePixel = 0; KF.Parent = KG
+    local KC = Instance.new("UICorner"); KC.CornerRadius = UDim.new(0,12); KC.Parent = KF
+    local KS = Instance.new("UIStroke"); KS.Color = Color3.fromRGB(0,122,255); KS.Thickness = 1.5; KS.Parent = KF
+    local KGrad = Instance.new("UIGradient"); KGrad.Rotation = 90; KGrad.Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(30,30,40)), ColorSequenceKeypoint.new(1, Color3.fromRGB(14,14,20))}; KGrad.Parent = KF
+    local KPop = Instance.new("UIScale"); KPop.Scale = 0.7; KPop.Parent = KF; KTW:Create(KPop,TweenInfo.new(0.3,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Scale=1}):Play()
+    local KT = Instance.new("TextLabel"); KT.Size = UDim2.new(1,0,0,44); KT.BackgroundTransparency = 1; KT.Text = "KEY SYSTEM"; KT.TextColor3 = Color3.fromRGB(255,255,255); KT.TextSize = 16; KT.Font = Enum.Font.GothamBold; KT.Parent = KF
+    local KSub = Instance.new("TextLabel"); KSub.Size = UDim2.new(1,0,0,16); KSub.Position = UDim2.new(0,0,0,40); KSub.BackgroundTransparency = 1; KSub.Text = "Enter key to continue"; KSub.TextColor3 = Color3.fromRGB(140,140,150); KSub.TextSize = 11; KSub.Font = Enum.Font.Gotham; KSub.Parent = KF
+    local KBox = Instance.new("TextBox"); KBox.Size = UDim2.new(1,-24,0,34); KBox.Position = UDim2.new(0,12,0,64); KBox.BackgroundColor3 = Color3.fromRGB(30,30,38); KBox.Text = ""; KBox.PlaceholderText = "Enter key..."; KBox.TextColor3 = Color3.fromRGB(255,255,255); KBox.PlaceholderColor3 = Color3.fromRGB(120,120,130); KBox.TextSize = 12; KBox.Font = Enum.Font.Gotham; KBox.ClearTextOnFocus = false; KBox.Parent = KF
+    local KBC = Instance.new("UICorner"); KBC.CornerRadius = UDim.new(0,8); KBC.Parent = KBox
+    local Check = Instance.new("TextButton"); Check.Size = UDim2.new(1,-24,0,40); Check.Position = UDim2.new(0,12,0,110); Check.BackgroundColor3 = Color3.fromRGB(0,170,90); Check.Text = "CHECK KEY"; Check.TextColor3 = Color3.fromRGB(255,255,255); Check.Font = Enum.Font.GothamBold; Check.TextSize = 14; Check.AutoButtonColor = false; Check.Parent = KF
+    local CC = Instance.new("UICorner"); CC.CornerRadius = UDim.new(0,8); CC.Parent = Check
+
+    local function good()
+        pcall(function() if delfile and isfile and isfile(KEY_FILE) then delfile(KEY_FILE) end end)
+        logKey()
+        notify("Key", "Correct! Opening Hub...", 2)
+        KG:Destroy()
+        openHub()
+    end
+    Check.MouseButton1Click:Connect(function()
+        if keyOK(KBox.Text) then good() else notify("Key", "Wrong key!", 3) end
+    end)
+    KBox.FocusLost:Connect(function(enter) if enter then if keyOK(KBox.Text) then good() else notify("Key", "Wrong key!", 3) end end end)
+    KUIS.InputBegan:Connect(function(input)
+        if not alive() then return end
+        if input.KeyCode == Enum.KeyCode.Escape then KG:Destroy() end
+    end)
+end
+keyWindow()
